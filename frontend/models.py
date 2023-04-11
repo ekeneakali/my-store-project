@@ -27,6 +27,7 @@ class Product(models.Model):
     image = models.FileField(upload_to="document")
     price = models.IntegerField()
     created_by = models.CharField(max_length=50)
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
     description = models.TextField()
     likes = models.ManyToManyField(User, related_name='likes', blank=True)
     favourite = models.ManyToManyField(User, related_name='favourite', blank=True)
@@ -42,6 +43,11 @@ class Product(models.Model):
 
     class Meta():
         verbose_name_plural = 'Product'
+
+    
+    class Meta():
+        ordering = ['-created_at',]
+
 
 
 

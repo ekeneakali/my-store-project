@@ -101,7 +101,7 @@ class ProductForm(forms.ModelForm):
     class Meta():
         model = Product
         fields = '__all__'
-        exclude = ['likes', 'favourite']
+        exclude = ['likes', 'favourite', 'user']
 
 class ProfileForm(forms.ModelForm):
 

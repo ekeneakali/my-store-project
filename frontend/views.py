@@ -52,7 +52,7 @@ from cart.cart import Cart
 
 
 def home(request):
-    post = Product.objects.all()
+    post = Product.objects.all().order_by('-created_at')
 
     return render(request, 'frontend/index.html', {'post':post, 'post':post})
 def base(request):
@@ -96,7 +96,9 @@ def add_post(request):
     if request.method == 'POST':
         form = ProductForm(request.POST, request.FILES)
         if form.is_valid():
-            form.save()
+            instance = form.save(commit=False)
+            instance.user = request.user
+            instance.save()
             messages.success(request, 'product added successfully ')
             return redirect('frontend:add_post')
     
@@ -108,7 +110,7 @@ def add_post(request):
 
 def view_post(request):
     
-    post = Product.objects.filter(created_by=request.user)
+    post = Product.objects.filter(user=request.user)
     
     return render(request, 'frontend/view-post.html', {'post':post})
 
@@ -250,9 +252,13 @@ def custom_login(request):
 # Same as in all places where we request some input from the user, we use the POST method; not an exception is the login function. We use the built-in Django Authentication form to receive the username and password from the user and check if it's valid. If the form is valid, we call the built-in Django authentication function that checks if such a 
 
 def custom_logout(request):
+    cart = copy.deepcopy(Cart(request).cart)
     logout(request)
-    messages.success(request, "Logged out successfully!")
-    return redirect("frontend:custom_login")
+    session = request.session
+    session[settings.CART_SESSION_ID] = cart
+    session.modified = True
+    messages.success(request, 'Log out successfully!')
+    return redirect('frontend:custom_login')
 
 def confirm_logout(request):
 
